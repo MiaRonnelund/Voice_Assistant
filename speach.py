@@ -32,10 +32,10 @@ def authenticate():
             takeAction(unknown_Protocol)
 
 def register_protocol():
-    unknown_Protocol[0] = {"morning": testing.morning_input}
-    unknown_Protocol[1] = {"night": testing.night_input}
-    unknown_Protocol[2] = {"adds": testing.a_state}
-    unknown_Protocol[3] = {"location": testing.l_state}
+    protocol = testing.pInput()
+    unknown_Protocol[0] = {"time": [protocol[0], protocol[1]]}
+    unknown_Protocol[1] = {"adds": protocol[2]}
+    unknown_Protocol[2] = {"location": protocol[3]}
 
 def takeAction(protocol):
     speak("What can i do for you?")
