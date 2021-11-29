@@ -43,3 +43,4 @@ def pInput():
 
 def clicked():
     messagebox.showinfo("Thank you!", "Thank you for registering your preferences")
+    

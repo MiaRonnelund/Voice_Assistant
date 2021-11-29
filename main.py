@@ -1,7 +1,17 @@
-import testing
-
-unknown_Protocol = {}
+import protocol_Window
+import speech
+import time
 
 if __name__ == "__main__":
-    x = testing.pInput()
-    print(x)
+    # startTime = time.time()
+    # sec = 10
+
+    # while True:
+    #     currentTime = time.time()
+    #     elapsedTime = currentTime - startTime
+
+    #     if elapsedTime > sec:
+    #         print(elapsedTime)
+    #         startTime = time.time()
+    #         continue
+    speech.authenticate()
