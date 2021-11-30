@@ -18,6 +18,7 @@ def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
+#Authenticate the speaker
 def authenticate():
     speak("Who are you?")
     query = takeCommand().lower()
@@ -33,12 +34,15 @@ def authenticate():
         if allowed == True:
             takeAction(unknown_Protocol)
 
+#Call tkinter window - gets input from user about preferences
 def register_protocol():
     protocol = protocol_Window.pInput()
     unknown_Protocol["time"] = [protocol[0], protocol[1]]
     unknown_Protocol["adds"] = protocol[2]
     unknown_Protocol["location"] = protocol[3]
+    print(protocol)
 
+#Call different functions based on query
 def takeAction(protocol):
     speak("What can i do for you?")
     query = takeCommand().lower()
@@ -53,6 +57,8 @@ def takeAction(protocol):
             add(protocol)
 
 
+#Registrer and record the audio through the microphone
+#Returns the query (the user input)
 def takeCommand():
     rec = sr.Recognizer()
     with sr.Microphone() as source:
@@ -73,7 +79,7 @@ def takeCommand():
     
     return query
 
-
+#Checks that the current time is within range of the given time preferences
 def allowedToListen(protocol):
     listen_Allowed = False
     hour = int(datetime.datetime.now().hour)
@@ -90,10 +96,14 @@ def allowedToListen(protocol):
 
     return listen_Allowed
 
+#If query is time this function is called
+#Speaks the current time
 def get_Time():
     strTime = datetime.datetime.now().strftime("%H%M%S")
     speak(f"The time is {strTime}")
 
+#Query == Weather
+#speaks the current temperature of Copenhagen - if 'location' allowed
 async def weather(protocol):
     if protocol["location"] == True:
         client = python_weather.Client()
@@ -105,6 +115,8 @@ async def weather(protocol):
     else:
         speak("Sorry you location is disabled")
 
+#Query == order
+#speaks food order if 'adds' allowed
 def add(protocol):
     if protocol["adds"] == True:
         speak("What would you like to order?")

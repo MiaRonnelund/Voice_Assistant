@@ -30,17 +30,22 @@ def pInput():
 
     morning_input.grid(column=1,row=3)
     night_input.grid(column=1,row=4)
-    send_bnt = tk.Button(window, text="Registrer permissions", command=clicked).grid(column=0, row=5)
 
+    protocol = []
+
+    def clicked():
+        protocol.append(morningx.get())
+        protocol.append(nightx.get())
+        protocol.append(a_state.get())
+        protocol.append(l_state.get())
+        morning_input.destroy()
+        night_input.destroy()
+        window.destroy()
+
+    send_bnt = tk.Button(window, text="Registrer permissions", command=clicked).grid(column=0, row=5)
     window.mainloop()
 
-    morning_time = morningx.get()
-    get_night = nightx.get()
-    aInput = a_state.get()
-    lInput = l_state.get()
+    return(protocol)
 
-    return(morning_time, get_night, aInput, lInput)
 
-def clicked():
-    messagebox.showinfo("Thank you!", "Thank you for registering your preferences")
     
