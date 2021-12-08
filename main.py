@@ -1,6 +1,4 @@
-import protocol_Window
 import speech
-import time
 
 if __name__ == "__main__":
     # startTime = time.time()

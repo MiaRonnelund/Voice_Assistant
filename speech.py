@@ -5,7 +5,6 @@ import speech_recognition as sr
 import python_weather
 import asyncio
 
-import protocol_Window
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -36,25 +35,54 @@ def authenticate():
 
 #Call tkinter window - gets input from user about preferences
 def register_protocol():
-    protocol = protocol_Window.pInput()
-    unknown_Protocol["time"] = [protocol[0], protocol[1]]
-    unknown_Protocol["adds"] = protocol[2]
-    unknown_Protocol["location"] = protocol[3]
-    print(protocol)
+    speak("Please define your privacy protocol")
+
+    #Set time for allowed listen
+    speak("When am I allowed to start listening?")
+    morning = int(input("Please type whole number between 0 - 24: \n"))
+
+    speak("When should i stop listening?")
+    night = int(input("Please type whole number between 0 - 24: \n"))
+
+    unknown_Protocol["time"] = [morning, night]
+
+    #Set adds
+    speak("Would you allow adds?")
+    adds = input("Please type 'yes' or 'no'\n").lower()
+    if(adds == "yes" ):
+        unknown_Protocol["adds"] = True
+    else:
+        unknown_Protocol["adds"] = False
+
+    #Set location
+    speak("Would you allow location?")
+    location = input("Please type 'yes' or 'no' \n").lower()
+    if(location == "yes"):
+        unknown_Protocol["location"] = True
+    else:
+        unknown_Protocol["location"] = False
+
+    print(unknown_Protocol)
 
 #Call different functions based on query
 def takeAction(protocol):
     speak("What can i do for you?")
-    query = takeCommand().lower()
 
     while True:
-        if query == "time":
+        query = takeCommand().lower()
+        if "time" in query:
             get_Time()
-        elif query == "weather":
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(weather(protocol))
-        elif query == "order":
-            add(protocol)
+        elif "weather" in query:
+            if(protocol["location"]==True):
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(weather())
+            else:
+                speak("Sorry you location is disabled")
+        elif "order" in query:
+            if(protocol["adds"]==True):
+                add()
+            else:
+                speak("Sorry, adds is disabled. I can't run this command")
 
 
 #Registrer and record the audio through the microphone
@@ -87,7 +115,7 @@ def allowedToListen(protocol):
         speak("Sorry you havn't allowed me to listen to you yet")
         listen_Allowed = False
 
-    elif protocol["time"][1] < hour:
+    elif protocol["time"][1] <= hour:
         speak("Sorry you haven't allowed my to listen further")
         listen_Allowed = False
 
@@ -104,22 +132,18 @@ def get_Time():
 
 #Query == Weather
 #speaks the current temperature of Copenhagen - if 'location' allowed
-async def weather(protocol):
-    if protocol["location"] == True:
-        client = python_weather.Client()
-        weather = await client.find("Copenhagen")
-        speak(weather.current.temperature)
+async def weather():
+    client = python_weather.Client()
+    weather = await client.find("Copenhagen")
+    temp = weather.current.temperature
+    speak(f"It is {temp} degrees celcius in Copenhagen today")
 
-        await client.close()
-    
-    else:
-        speak("Sorry you location is disabled")
+    await client.close()
 
 #Query == order
 #speaks food order if 'adds' allowed
-def add(protocol):
-    if protocol["adds"] == True:
-        speak("What would you like to order?")
-        query = takeCommand()
+def add():
+    speak("What would you like to order?")
+    query = takeCommand()
 
-        speak(f"Ordering {query}")
+    speak(f"Ordering {query}")
