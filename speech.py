@@ -90,7 +90,6 @@ def register_protocol():
 #Call different functions based on query
 def takeAction(policy):
     speak("What can i do for you?")
-    current = time.time()
 
     while True:
         query = takeCommand().lower()
@@ -130,7 +129,9 @@ def allowedToListen(policy):
 #Speaks the current time
 def get_Time():
     strTime = datetime.datetime.now().strftime("%H%M%S")
-    speak(f"The time is {strTime}")
+    h = strTime[0:2]
+    m = strTime[2:4]
+    speak(f"The time is {h} {m}")
 
 #Query == Weather
 #speaks the current temperature of Copenhagen - if 'location' allowed
