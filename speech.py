@@ -10,82 +10,15 @@ engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
-miaProtocol = {"time": [8, 19], "adds": True, "location": False}
-unknown_Protocol={}
+miaPolicy = {"time": [8, 19], "advertisement": True, "location": False}
+unknown_Policy={}
 
-def speak(audio):
-    engine.say(audio)
+#Uses pyttsx3 to convert text to speech
+def speak(text):
+    engine.say(text)
     engine.runAndWait()
 
-#Authenticate the speaker
-def authenticate():
-    speak("Who are you?")
-    query = takeCommand().lower()
-
-    if query == "mia":
-        speak("Hello" + query)
-        allowed = allowedToListen(miaProtocol)
-        if allowed == True:
-            takeAction(miaProtocol)
-    else:
-        register_protocol()
-        allowed = allowedToListen(unknown_Protocol)
-        if allowed == True:
-            takeAction(unknown_Protocol)
-
-#Call tkinter window - gets input from user about preferences
-def register_protocol():
-    speak("Please define your privacy protocol")
-
-    #Set time for allowed listen
-    speak("When am I allowed to start listening?")
-    morning = int(input("Please type whole number between 0 - 24: \n"))
-
-    speak("When should i stop listening?")
-    night = int(input("Please type whole number between 0 - 24: \n"))
-
-    unknown_Protocol["time"] = [morning, night]
-
-    #Set adds
-    speak("Would you allow adds?")
-    adds = input("Please type 'yes' or 'no'\n").lower()
-    if(adds == "yes" ):
-        unknown_Protocol["adds"] = True
-    else:
-        unknown_Protocol["adds"] = False
-
-    #Set location
-    speak("Would you allow location?")
-    location = input("Please type 'yes' or 'no' \n").lower()
-    if(location == "yes"):
-        unknown_Protocol["location"] = True
-    else:
-        unknown_Protocol["location"] = False
-
-    print(unknown_Protocol)
-
-#Call different functions based on query
-def takeAction(protocol):
-    speak("What can i do for you?")
-
-    while True:
-        query = takeCommand().lower()
-        if "time" in query:
-            get_Time()
-        elif "weather" in query:
-            if(protocol["location"]==True):
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(weather())
-            else:
-                speak("Sorry you location is disabled")
-        elif "order" in query:
-            if(protocol["adds"]==True):
-                add()
-            else:
-                speak("Sorry, adds is disabled. I can't run this command")
-
-
-#Registrer and record the audio through the microphone
+#Take user audio and convert til text
 #Returns the query (the user input)
 def takeCommand():
     rec = sr.Recognizer()
@@ -107,15 +40,84 @@ def takeCommand():
     
     return query
 
+#Authenticate the speaker
+def authenticate():
+    speak("Who are you?")
+    query = takeCommand().lower()
+
+    if query == "mia":
+        speak("Hello" + query)
+        allowed = allowedToListen(miaPolicy)
+        if allowed == True:
+            takeAction(miaPolicy)
+    else:
+        register_protocol()
+        allowed = allowedToListen(unknown_Policy)
+        if allowed == True:
+            takeAction(unknown_Policy)
+
+#register protocol by input()
+def register_protocol():
+    speak("Please define your privacy protocol")
+
+    #Set time for allowed listen
+    speak("When am I allowed to start listening?")
+    morning = int(input("Please type whole number between 0 - 24: \n"))
+
+    speak("When should i stop listening?")
+    night = int(input("Please type whole number between 0 - 24: \n"))
+
+    unknown_Policy["time"] = [morning, night]
+
+    #Set adds
+    speak("Would you allow adds?")
+    advertisement = input("Please type 'yes' or 'no'\n").lower()
+    if(advertisement == "yes" ):
+        unknown_Policy["advertisement"] = True
+    else:
+        unknown_Policy["advertisement"] = False
+
+    #Set location
+    speak("Would you allow location?")
+    location = input("Please type 'yes' or 'no' \n").lower()
+    if(location == "yes"):
+        unknown_Policy["location"] = True
+    else:
+        unknown_Policy["location"] = False
+
+    print(unknown_Policy)
+
+#Call different functions based on query
+def takeAction(policy):
+    speak("What can i do for you?")
+    current = time.time()
+
+    while True:
+        query = takeCommand().lower()
+        if "time" in query:
+            get_Time()
+        elif "weather" in query:
+            if(policy["location"]==True):
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(weather())
+            else:
+                speak("Sorry you location is disabled")
+        elif "order" in query:
+            if(policy["advertisement"]==True):
+                order()
+            else:
+                speak("Sorry, adds is disabled. I can't run this command")
+
+
 #Checks that the current time is within range of the given time preferences
-def allowedToListen(protocol):
+def allowedToListen(policy):
     listen_Allowed = False
     hour = int(datetime.datetime.now().hour)
-    if protocol["time"][0] > hour:
+    if policy["time"][0] > hour:
         speak("Sorry you havn't allowed me to listen to you yet")
         listen_Allowed = False
 
-    elif protocol["time"][1] <= hour:
+    elif policy["time"][1] <= hour:
         speak("Sorry you haven't allowed my to listen further")
         listen_Allowed = False
 
@@ -142,7 +144,7 @@ async def weather():
 
 #Query == order
 #speaks food order if 'adds' allowed
-def add():
+def order():
     speak("What would you like to order?")
     query = takeCommand()
 
